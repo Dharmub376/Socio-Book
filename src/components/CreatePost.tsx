@@ -1,14 +1,28 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-    ArrowLeft,
-    Image,
-    Video,
-    Smile,
-    MapPin,
-    X
-} from "lucide-react";
-import { useAuth } from './AuthContext'; 
+import { ArrowLeft, Image, Video, Smile, MapPin, X } from "lucide-react";
+import { useAuth } from "./AuthContext";
+
+// Define Post + User types
+type User = {
+    id: string;
+    name: string;
+    profilePicture?: string;
+};
+
+type Post = {
+    id: string;
+    content: string;
+    image?: string | null;
+    timestamp: string;
+    likes: number;
+    comments: { id: string; text: string }[];
+    author: {
+        id: string;
+        name: string;
+        avatar: string;
+    };
+};
 
 function CreatePost() {
     const [content, setContent] = useState("");
@@ -17,7 +31,7 @@ function CreatePost() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user } = useAuth() as { user: User | null };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -56,8 +70,8 @@ function CreatePost() {
         setIsSubmitting(true);
 
         try {
-            const newPost = {
-                id: Date.now().toString(), 
+            const newPost: Post = {
+                id: Date.now().toString(),
                 content: content.trim(),
                 image: imagePreview,
                 timestamp: new Date().toISOString(),
@@ -66,15 +80,14 @@ function CreatePost() {
                 author: {
                     id: user.id,
                     name: user.name,
-                    avatar: user.profilePicture || "/default-avatar.png"
-                }
+                    avatar: user.profilePicture || "/default-avatar.png",
+                },
             };
 
-            const existingPosts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const existingPosts: Post[] = JSON.parse(localStorage.getItem("posts") || "[]");
 
             const updatedPosts = [newPost, ...existingPosts];
-
-            localStorage.setItem('posts', JSON.stringify(updatedPosts));
+            localStorage.setItem("posts", JSON.stringify(updatedPosts));
 
             setContent("");
             setImage(null);
@@ -104,7 +117,7 @@ function CreatePost() {
                         <ArrowLeft className="h-5 w-5" />
                     </button>
                     <h1 className="text-lg font-semibold">Create Post</h1>
-                    <div className="w-9"></div> {/* For spacing */}
+                    <div className="w-9"></div>
                 </div>
             </div>
 
@@ -119,7 +132,7 @@ function CreatePost() {
                             />
                         ) : (
                             <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold mr-3">
-                                {user.name?.charAt(0).toUpperCase() || 'U'}
+                                {user.name?.charAt(0).toUpperCase() || "U"}
                             </div>
                         )}
                         <div>
@@ -131,7 +144,7 @@ function CreatePost() {
                         <textarea
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
-                            placeholder={`What's on your mind, ${user.name?.split(' ')[0] || 'there'}?`}
+                            placeholder={`What's on your mind, ${user.name?.split(" ")[0] || "there"}?`}
                             className="w-full resize-none border-none focus:outline-none focus:ring-0 text-lg placeholder-gray-500 min-h-[120px]"
                         />
 
@@ -162,21 +175,21 @@ function CreatePost() {
                             >
                                 <Image className="h-5 w-5" />
                             </button>
-                            <button 
+                            <button
                                 type="button"
                                 className="p-2 rounded-full hover:bg-gray-100 text-blue-500"
                                 onClick={() => alert("Video upload coming soon!")}
                             >
                                 <Video className="h-5 w-5" />
                             </button>
-                            <button 
+                            <button
                                 type="button"
                                 className="p-2 rounded-full hover:bg-gray-100 text-yellow-500"
                                 onClick={() => alert("Emoji picker coming soon!")}
                             >
                                 <Smile className="h-5 w-5" />
                             </button>
-                            <button 
+                            <button
                                 type="button"
                                 className="p-2 rounded-full hover:bg-gray-100 text-red-500"
                                 onClick={() => alert("Location feature coming soon!")}
@@ -198,10 +211,11 @@ function CreatePost() {
                         <button
                             onClick={handleSubmit}
                             disabled={(!content.trim() && !image) || isSubmitting}
-                            className={`w-full py-2 px-4 rounded-lg font-semibold ${(!content.trim() && !image) || isSubmitting
+                            className={`w-full py-2 px-4 rounded-lg font-semibold ${
+                                (!content.trim() && !image) || isSubmitting
                                     ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                     : "bg-green-500 hover:bg-green-600 text-white"
-                                }`}
+                            }`}
                         >
                             {isSubmitting ? "Posting..." : "Post"}
                         </button>
@@ -210,7 +224,7 @@ function CreatePost() {
 
                 <div className="mt-4 bg-white rounded-lg shadow p-4">
                     <div className="flex justify-between space-x-2">
-                        <button 
+                        <button
                             type="button"
                             className="flex items-center justify-center flex-1 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium"
                             onClick={() => alert("Live video feature coming soon!")}
@@ -226,7 +240,7 @@ function CreatePost() {
                             <Image className="h-5 w-5 text-green-500 mr-2" />
                             Photo/video
                         </button>
-                        <button 
+                        <button
                             type="button"
                             className="flex items-center justify-center flex-1 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium"
                             onClick={() => alert("Feeling/activity feature coming soon!")}
