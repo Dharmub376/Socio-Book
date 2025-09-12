@@ -37,7 +37,7 @@ function Settings() {
         accountPrivacy: "public"
     });
     const [activeSection, setActiveSection] = useState("appearance");
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showDeleteConfirm] = useState(false);
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [passwordForm, setPasswordForm] = useState({
         currentPassword: "",
@@ -58,7 +58,7 @@ function Settings() {
         }
     }, []);
 
-   
+
 
     const handlePasswordChange = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
@@ -385,7 +385,7 @@ function Settings() {
                                             <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
                                                 <h4 className="font-medium text-red-800 dark:text-red-300 mb-2">Are you absolutely sure?</h4>
                                                 <p className="text-sm text-red-700 dark:text-red-400 mb-4">This action cannot be undone. This will permanently delete your account and remove all your data from our servers.</p>
-                                                
+
                                             </div>
                                         )}
                                     </div>

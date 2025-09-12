@@ -21,7 +21,7 @@ type Post = {
 function EditPost() {
     const { id } = useParams<{ id: string }>();
     const [content, setContent] = useState("");
-    const [image, setImage] = useState<File | null>(null);
+    const [, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
