@@ -20,17 +20,36 @@ const mockUser = {
     profilePicture: null
 };
 
+type Post = {
+    id: string;
+    author?: { name?: string };
+    profilePicture?: string | null;
+    content?: string;
+    image?: string;
+    timestamp?: string;
+    likes?: { [userId: string]: boolean };
+    bookmarks?: { [userId: string]: boolean };
+    comments?: Array<{
+        id: string;
+        text: string;
+        author: string;
+        userId: string;
+        timestamp: string;
+    }>;
+    likeCount?: number;
+};
+
 function Home() {
-    const [posts, setPosts] = useState([]);
-    const [menuOpen, setMenuOpen] = useState(null);
-    const [commentText, setCommentText] = useState("");
-    const [activeCommentInput, setActiveCommentInput] = useState(null);
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [menuOpen, setMenuOpen] = useState<string | null>(null);
+    const [commentText, setCommentText] = useState<string>("");
+    const [activeCommentInput, setActiveCommentInput] = useState<string | null>(null);
     const [user] = useState(mockUser);
 
     useEffect(() => {
-        const savedPosts = JSON.parse(localStorage.getItem('posts')) || [];
+        const savedPosts = JSON.parse(localStorage.getItem('posts') || '[]');
         // Initialize posts with proper structure if they don't exist
-        const initializedPosts = savedPosts.map(post => ({
+        const initializedPosts = savedPosts.map((post: Post) => ({
             ...post,
             likes: post.likes || {},
             bookmarks: post.bookmarks || {},
@@ -40,7 +59,7 @@ function Home() {
         setPosts(initializedPosts);
     }, []);
 
-    const handleLike = (postId) => {
+    const handleLike = (postId: string) => {
         const updatedPosts = posts.map(post => {
             if (post.id === postId) {
                 const alreadyLiked = post.likes && post.likes[user.id];
@@ -62,7 +81,7 @@ function Home() {
         localStorage.setItem('posts', JSON.stringify(updatedPosts));
     };
 
-    const handleBookmark = (postId) => {
+    const handleBookmark = (postId: string) => {
         const updatedPosts = posts.map(post => {
             if (post.id === postId) {
                 const alreadyBookmarked = post.bookmarks && post.bookmarks[user.id];
@@ -90,7 +109,7 @@ function Home() {
         localStorage.setItem(`bookmarks_${user.id}`, JSON.stringify(userBookmarks));
     };
 
-    const handleAddComment = (postId) => {
+    const handleAddComment = (postId: string) => {
         if (!commentText.trim()) return;
 
         const updatedPosts = posts.map(post => {
@@ -117,7 +136,7 @@ function Home() {
         setActiveCommentInput(null);
     };
 
-    const handleDelete = (postId) => {
+    const handleDelete = (postId: string) => {
         if (!window.confirm("Are you sure you want to delete this post?")) return;
 
         const updatedPosts = posts.filter(post => post.id !== postId);
@@ -126,7 +145,7 @@ function Home() {
         setMenuOpen(null);
     };
 
-    const formatTime = (timestamp) => {
+    const formatTime = (timestamp: string | number | Date) => {
         const date = new Date(timestamp);
         const now = new Date();
         const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
@@ -141,20 +160,20 @@ function Home() {
         }
     };
 
-    const toggleMenu = (postId, e) => {
+    const toggleMenu = (postId: string, e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         setMenuOpen(menuOpen === postId ? null : postId);
     };
 
-    const hasUserLiked = (post) => {
+    const hasUserLiked = (post: Post) => {
         return post.likes && post.likes[user.id];
     };
 
-    const hasUserBookmarked = (post) => {
+    const hasUserBookmarked = (post: Post) => {
         return post.bookmarks && post.bookmarks[user.id];
     };
 
-    const countLikes = (post) => {
+    const countLikes = (post: Post) => {
         if (post.likeCount !== undefined) return post.likeCount;
         if (!post.likes) return 0;
         return Object.values(post.likes).filter((liked) => liked).length;
@@ -225,7 +244,7 @@ function Home() {
                                         </div>
                                         <div>
                                             <h4 className="font-semibold">{post.author?.name || "User"}</h4>
-                                            <p className="text-xs text-gray-500">{formatTime(post.timestamp)}</p>
+                                            <p className="text-xs text-gray-500">{formatTime(post.timestamp ?? Date.now())}</p>
                                         </div>
                                     </div>
                                     <div className="relative">
