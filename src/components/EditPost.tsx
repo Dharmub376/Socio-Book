@@ -8,10 +8,18 @@ import {
     MapPin,
     X
 } from "lucide-react";
-import { useAuth } from './AuthContext';
+import { useAuth } from "./AuthContext";
+
+type Post = {
+    id: string;
+    content: string;
+    image?: string | null;
+    timestamp: string;
+    authorId: string;
+};
 
 function EditPost() {
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
     const [content, setContent] = useState("");
     const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -23,8 +31,8 @@ function EditPost() {
     useEffect(() => {
         if (!id) return;
 
-        const existingPosts = JSON.parse(localStorage.getItem('posts') || '[]');
-        const postToEdit = existingPosts.find((post: any) => post.id === id);
+        const existingPosts: Post[] = JSON.parse(localStorage.getItem("posts") || "[]");
+        const postToEdit = existingPosts.find((post) => post.id === id);
 
         if (postToEdit) {
             setContent(postToEdit.content || "");
@@ -72,21 +80,21 @@ function EditPost() {
         setIsSubmitting(true);
 
         try {
-            const existingPosts = JSON.parse(localStorage.getItem('posts') || '[]');
+            const existingPosts: Post[] = JSON.parse(localStorage.getItem("posts") || "[]");
 
-            const updatedPosts = existingPosts.map((post: any) => {
+            const updatedPosts = existingPosts.map((post) => {
                 if (post.id === id) {
                     return {
                         ...post,
                         content: content.trim(),
                         image: imagePreview,
-                        timestamp: new Date().toISOString(), 
+                        timestamp: new Date().toISOString(),
                     };
                 }
                 return post;
             });
 
-            localStorage.setItem('posts', JSON.stringify(updatedPosts));
+            localStorage.setItem("posts", JSON.stringify(updatedPosts));
 
             setContent("");
             setImage(null);
@@ -116,7 +124,7 @@ function EditPost() {
                         <ArrowLeft className="h-5 w-5" />
                     </button>
                     <h1 className="text-lg font-semibold">Edit Post</h1>
-                    <div className="w-9"></div> {/* For spacing */}
+                    <div className="w-9"></div>
                 </div>
             </div>
 
@@ -131,7 +139,7 @@ function EditPost() {
                             />
                         ) : (
                             <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold mr-3">
-                                {user.name?.charAt(0).toUpperCase() || 'U'}
+                                {user.name?.charAt(0).toUpperCase() || "U"}
                             </div>
                         )}
                         <div>
@@ -143,7 +151,7 @@ function EditPost() {
                         <textarea
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
-                            placeholder={`What's on your mind, ${user.name?.split(' ')[0] || 'there'}?`}
+                            placeholder={`What's on your mind, ${user.name?.split(" ")[0] || "there"}?`}
                             className="w-full resize-none border-none focus:outline-none focus:ring-0 text-lg placeholder-gray-500 min-h-[120px]"
                         />
 
@@ -210,10 +218,11 @@ function EditPost() {
                         <button
                             onClick={handleSubmit}
                             disabled={(!content.trim() && !imagePreview) || isSubmitting}
-                            className={`w-full py-2 px-4 rounded-lg font-semibold ${(!content.trim() && !imagePreview) || isSubmitting
-                                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                : "bg-green-500 hover:bg-green-600 text-white"
-                                }`}
+                            className={`w-full py-2 px-4 rounded-lg font-semibold ${
+                                (!content.trim() && !imagePreview) || isSubmitting
+                                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                    : "bg-green-500 hover:bg-green-600 text-white"
+                            }`}
                         >
                             {isSubmitting ? "Updating..." : "Update Post"}
                         </button>
