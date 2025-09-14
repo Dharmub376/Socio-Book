@@ -153,7 +153,6 @@ function Settings() {
                             </nav>
                         </div>
 
-                        {/* Logout button */}
                         <button
                             onClick={handleLogout}
                             className="w-full mt-4 flex items-center justify-center p-3 bg-white dark:bg-gray-800 rounded-lg shadow-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"

@@ -48,7 +48,6 @@ function Home() {
 
     useEffect(() => {
         const savedPosts = JSON.parse(localStorage.getItem('posts') || '[]');
-        // Initialize posts with proper structure if they don't exist
         const initializedPosts = savedPosts.map((post: Post) => ({
             ...post,
             likes: post.likes || {},
@@ -236,7 +235,6 @@ function Home() {
                     <div className="space-y-4">
                         {posts.map(post => (
                             <div key={post.id} className="bg-white rounded-lg shadow">
-                                {/* Post Header */}
                                 <div className="p-3 flex items-center justify-between">
                                     <div className="flex items-center space-x-2">
                                         <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">

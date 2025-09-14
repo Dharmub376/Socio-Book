@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Image, Video, Smile, MapPin, X } from "lucide-react";
 import { useAuth } from "./AuthContext";
 
-// Define Post + User types
 type User = {
     id: string;
     name: string;

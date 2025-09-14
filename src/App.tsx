@@ -34,7 +34,6 @@ function App() {
         <Route path="/edit-post/:id" element={<EditPost />} />
         <Route path="*" element={<Error404 />} />
 
-        {/* Protected Routes */}
         <Route path="/home" element={
           <ProtectedRoute>
             <Home />

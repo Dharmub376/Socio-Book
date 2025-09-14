@@ -109,11 +109,9 @@ function Profile() {
 
             <div className="max-w-4xl mx-auto px-4 py-6">
                 <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-                    {/* Cover Photo */}
                     <div className="h-40 bg-gradient-to-r from-green-400 to-green-500"></div>
 
                     <div className="px-6 pb-6">
-                        {/* Profile Header */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between -mt-16 mb-4">
                             <div className="flex items-center space-x-4">
                                 <div className="w-24 h-24 rounded-full bg-white p-1 shadow-md">
