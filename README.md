@@ -1,4 +1,5 @@
-# 📋 Socio-Book Project
+
+# <img src="https://raw.githubusercontent.com/Dharmub376/Socio-Book/main/public/logo.png" width="30"/> Socio-Book Project
 
 ## 🚀 Project Overview
 **Socio-Book** is a modern social media application built with React, TypeScript, and Tailwind CSS. It features user authentication, post management, profile customization, and interactive social features.
