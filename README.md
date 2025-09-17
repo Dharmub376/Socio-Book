@@ -32,28 +32,6 @@
 
 ---
 
-## 🏗️ Architecture & Logic
-
-### State Management
-
-```typescript
-interface AuthContextType {
-    user: User | null;
-    login: (userData: User) => void;
-    logout: () => void;
-    isLoading: boolean;
-}
-```
-
-
-### Routing Structure
-
-- Protected routes for authenticated users only
-- Public routes for login/register
-- Dynamic routes for profiles and posts
-
----
-
 ## 🔑 Key Features Implementation
 
 ### 1. Authentication System
@@ -214,3 +192,9 @@ yarn dev
 The application will automatically open in your browser at `http://localhost:5173`. If it doesn't, you can manually navigate to this address.
 
 ---
+
+
+
+# Post Demo Works:
+### 1. Added data fetches from json in post Page
+### 2. Added New Page (Reels)

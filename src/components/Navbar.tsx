@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
     Search, Home, Bookmark, Settings, User, LogIn,
-    Menu, FileText, X, LogOut
+    Menu, FileText, X, LogOut, Film
 } from "lucide-react";
 import { useAuth } from "./AuthContext"; 
 
 function Navbar() {
-    const location = useLocation();
     const navigate = useNavigate();
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
@@ -17,6 +16,7 @@ function Navbar() {
         if (location.pathname === "/" || location.pathname === "/home") return "home";
         if (location.pathname === "/post") return "post";
         if (location.pathname === "/bookmarks") return "bookmarks";
+        if (location.pathname === "/reels") return "reels";
         return "";
     };
 
@@ -100,6 +100,12 @@ function Navbar() {
                                     className={`px-10 py-4 flex items-center justify-center border-b-2 ${activeTab === "bookmarks" ? "border-green-500 text-green-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
                                 >
                                     <Bookmark className="h-6 w-6" />
+                                </Link>
+                                <Link 
+                                to="/reels"
+                                className={`px-10 py-4 flex items-center justify-center border-b-2 ${activeTab === "reels" ? "border-green-500 text-green-600 " : "border-transparent text-gray-500 hover:text-gray-700"}`}
+                                >
+                                    <Film className="h-6 w-6" />
                                 </Link>
                             </div>
                         </div>
@@ -200,6 +206,13 @@ function Navbar() {
                                 >
                                     <Bookmark className="h-5 w-5 mr-3" />
                                     Bookmarks
+                                </Link>
+                                <Link to="/reels"
+                                className="flex items-center px-3 py-2 rounded-md text-gray-600 hover:text-gray-800 font-medium"
+                                onClick={() => setShowMobileMenu (false)}
+                                >
+                                <Film className="h-6 w-5 mr-3" />
+                                Reels
                                 </Link>
                                 <div className="border-t border-gray-200 pt-2">
                                     <Link

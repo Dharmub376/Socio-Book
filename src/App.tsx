@@ -17,6 +17,7 @@ import CreatePost from "./components/CreatePost";
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditPost from "./components/EditPost";
 import Error404 from "./pages/Error404";
+import Reels from "./pages/Reels";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/bookmarks" element={<Bookmarks />} />
         <Route path="/create-post" element={<CreatePost />} />
         <Route path="/edit-post/:id" element={<EditPost />} />
+        <Route path="/reels" element={ <Reels />}/>
         <Route path="*" element={<Error404 />} />
 
         <Route path="/home" element={

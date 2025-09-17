@@ -14,7 +14,6 @@ import {
     Search,
 } from "lucide-react";
 
-// Mock user data
 const mockUser = {
     id: "user-1",
     name: "Dharmu",
@@ -44,6 +43,7 @@ type PostType = {
 
 function Post() {
     const [posts, setPosts] = useState<PostType[]>([]);
+    const [externalPosts, setExternalPosts] = useState<PostType[]>([]);
     const [menuOpen, setMenuOpen] = useState<string | null>(null);
     const [commentText, setCommentText] = useState<string>("");
     const [activeCommentInput, setActiveCommentInput] = useState<string | null>(null);
@@ -61,9 +61,55 @@ function Post() {
             likeCount: post.likeCount || Object.values(post.likes || {}).filter(Boolean).length
         }));
         setPosts(initializedPosts);
+
+        const fetchExternalPosts = async () => {
+            try {
+                const response = await fetch('https://dharmub376.github.io/jsons/profiles.json');
+                const data = await response.json();
+                
+                const formattedPosts = (data as PostType[]).map((post: PostType) => ({
+                    id: post.id,
+                    content: post.content,
+                    image: post.image,
+                    author: post.author,
+                    timestamp: post.timestamp,
+                    likes: post.likes || {},
+                    bookmarks: post.bookmarks || {},
+                    comments: post.comments || [],
+                    likeCount: post.likeCount || Object.values(post.likes || {}).filter(Boolean).length,
+                    isExternal: true 
+                }));
+                
+                setExternalPosts(formattedPosts);
+            } catch (error) {
+                console.error("Failed to fetch external posts:", error);
+            }
+        };
+
+        fetchExternalPosts();
     }, []);
 
     const handleLike = (postId: string) => {
+        if (postId.startsWith('external-') || !postId.startsWith('post-')) {
+            setExternalPosts(prev => prev.map(post => {
+                if (post.id === postId) {
+                    const alreadyLiked = post.likes && post.likes[user.id];
+                    const newLikes = {
+                        ...post.likes,
+                        [user.id]: !alreadyLiked
+                    };
+
+                    return {
+                        ...post,
+                        likes: newLikes,
+                        likeCount: alreadyLiked ? (post.likeCount || 0) - 1 : (post.likeCount || 0) + 1
+                    };
+                }
+                return post;
+            }));
+            return;
+        }
+
         const updatedPosts = posts.map(post => {
             if (post.id === postId) {
                 const alreadyLiked = post.likes && post.likes[user.id];
@@ -86,6 +132,24 @@ function Post() {
     };
 
     const handleBookmark = (postId: string) => {
+        if (postId.startsWith('external-') || !postId.startsWith('post-')) {
+            setExternalPosts(prev => prev.map(post => {
+                if (post.id === postId) {
+                    const alreadyBookmarked = post.bookmarks && post.bookmarks[user.id];
+
+                    return {
+                        ...post,
+                        bookmarks: {
+                            ...post.bookmarks,
+                            [user.id]: !alreadyBookmarked
+                        }
+                    };
+                }
+                return post;
+            }));
+            return;
+        }
+
         const updatedPosts = posts.map(post => {
             if (post.id === postId) {
                 const alreadyBookmarked = post.bookmarks && post.bookmarks[user.id];
@@ -115,6 +179,30 @@ function Post() {
 
     const handleAddComment = (postId: string) => {
         if (!commentText.trim()) return;
+
+        if (postId.startsWith('external-') || !postId.startsWith('post-')) {
+            setExternalPosts(prev => prev.map(post => {
+                if (post.id === postId) {
+                    const newComment = {
+                        id: Date.now().toString(),
+                        text: commentText,
+                        author: user.name,
+                        userId: user.id,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    return {
+                        ...post,
+                        comments: [...(post.comments || []), newComment]
+                    };
+                }
+                return post;
+            }));
+            
+            setCommentText("");
+            setActiveCommentInput(null);
+            return;
+        }
 
         const updatedPosts = posts.map(post => {
             if (post.id === postId) {
@@ -150,7 +238,9 @@ function Post() {
     };
 
     const formatTime = (timestamp: string | number | Date | undefined) => {
-        const date = new Date(timestamp ?? Date.now());
+        if (!timestamp) return "Just now";
+        
+        const date = new Date(timestamp);
         const now = new Date();
         const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
 
@@ -193,7 +283,6 @@ function Post() {
         timestamp: string;
     }
 
-
     interface LikesType {
         [userId: string]: boolean;
     }
@@ -215,7 +304,9 @@ function Post() {
         return Object.values(post.likes).filter((liked) => liked).length;
     };
 
-    const filteredPosts = posts
+    const allPosts = [...posts, ...externalPosts];
+    
+    const filteredPosts = allPosts
         .filter(post => {
             if (filterBy === "text" && post.image) return false;
             if (filterBy === "image" && !post.image) return false;
@@ -233,7 +324,7 @@ function Post() {
         .sort(
             (a, b) =>
                 new Date(b.timestamp ?? 0).getTime() - new Date(a.timestamp ?? 0).getTime()
-        ); // Sort by newest first
+        ); 
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -258,7 +349,6 @@ function Post() {
             <div className="max-w-2xl mx-auto px-4 py-4">
                 <div className="bg-white rounded-lg shadow p-4 mb-4">
                     <div className="flex flex-col space-y-4">
-                        {/* Search */}
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <input
@@ -303,10 +393,10 @@ function Post() {
                             <Search className="h-8 w-8 text-gray-400" />
                         </div>
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
-                            {posts.length === 0 ? "No posts yet" : "No posts found"}
+                            {allPosts.length === 0 ? "No posts yet" : "No posts found"}
                         </h3>
                         <p className="text-gray-500 mb-4">
-                            {posts.length === 0
+                            {allPosts.length === 0
                                 ? "Share your first post with your community"
                                 : "Try adjusting your search or filter to find what you're looking for"}
                         </p>
@@ -332,37 +422,39 @@ function Post() {
                                             <p className="text-xs text-gray-500">{formatTime(post.timestamp)}</p>
                                         </div>
                                     </div>
-                                    <div className="relative">
-                                        <button
-                                            className="p-1 rounded-full hover:bg-gray-100"
-                                            onClick={(e) => toggleMenu(post.id, e)}
-                                        >
-                                            <MoreHorizontal className="h-5 w-5 text-gray-500" />
-                                        </button>
+                                    {post.id.startsWith('post-') && (
+                                        <div className="relative">
+                                            <button
+                                                className="p-1 rounded-full hover:bg-gray-100"
+                                                onClick={(e) => toggleMenu(post.id, e)}
+                                            >
+                                                <MoreHorizontal className="h-5 w-5 text-gray-500" />
+                                            </button>
 
-                                        {menuOpen === post.id && (
-                                            <div className="absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
-                                                <Link
-                                                    to={`/edit-post/${post.id}`}
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    <Edit className="h-4 w-4 mr-2" />
-                                                    Edit
-                                                </Link>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleDelete(post.id);
-                                                    }}
-                                                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                                                >
-                                                    <Trash2 className="h-4 w-4 mr-2" />
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
+                                            {menuOpen === post.id && (
+                                                <div className="absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
+                                                    <Link
+                                                        to={`/edit-post/${post.id}`}
+                                                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        <Edit className="h-4 w-4 mr-2" />
+                                                        Edit
+                                                    </Link>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDelete(post.id);
+                                                        }}
+                                                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                                    >
+                                                        <Trash2 className="h-4 w-4 mr-2" />
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {post.content && (
